@@ -1,5 +1,7 @@
 (ns teodorlu.playtool
-  (:require [babashka.process :refer [shell]]))
+  (:require
+   [babashka.process :refer [shell]]
+   [clojure.edn :as edn]))
 
 ;; A tool for playing with knowledge from https://play.teod.eu/
 
@@ -18,9 +20,16 @@
 
 (def play-folder "/home/teodorlu/dev/teodorlu/play.teod.eu")
 
-(defn old-play! [& args])
+(defn old-play* [& args]
+  (apply shell
+          {:dir play-folder :out :string}
+         "./play.clj"
+         args))
 
-(:out
- (shell {:dir play-folder
-         :out :string}
-        "./play.clj" "-h"))
+(defn old-play [& args]
+  (:out (apply old-play* args)))
+
+(defn relations []
+  (edn/read-string (old-play "relations" "--from" "files" "--to" "pretty")))
+
+(relations)
